@@ -1,5 +1,6 @@
 package circulation.combiner;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -33,6 +34,10 @@ public class Combiner {
             for (Decode.Pack pack : workPacks) {
                 copyWithXCopyBehavior(pack.getPath());
                 System.out.println("复制操作成功完成");
+            }
+            var log = new File(Decode.targetFile,"更新日志.txt");
+            if (log.exists()) {
+                ClearHandler.deleteWithRetry(log.toPath());
             }
         } catch (IOException e) {
             System.err.println("复制失败: " + e.getMessage());

@@ -1,7 +1,10 @@
 package circulation.combiner;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 public class ClearHandler {
@@ -30,7 +33,7 @@ public class ClearHandler {
         });
     }
 
-    private static void deleteWithRetry(Path path) {
+    public static void deleteWithRetry(Path path) {
         try {
             Files.delete(path);
             System.out.println("已删除: " + path);
