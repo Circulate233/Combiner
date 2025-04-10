@@ -28,16 +28,14 @@ public class Combiner {
                 System.out.println("操作已取消");
                 return;
             }
+            ClearHandler.cleanDirectory(Decode.targetFile.toPath());
 
-            workPacks.forEach(pack -> {
-                try {
-                    ClearHandler.cleanDirectory(Decode.targetFile.toPath());
-                    copyWithXCopyBehavior(pack.getPath());
-                    System.out.println("复制操作成功完成");
-                } catch (IOException e) {
-                    System.err.println("复制失败: " + e.getMessage());
-                }
-            });
+            for (Decode.Pack pack : workPacks) {
+                copyWithXCopyBehavior(pack.getPath());
+                System.out.println("复制操作成功完成");
+            }
+        } catch (IOException e) {
+            System.err.println("复制失败: " + e.getMessage());
         }
     }
 
