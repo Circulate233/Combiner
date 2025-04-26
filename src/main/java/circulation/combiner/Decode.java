@@ -1,26 +1,20 @@
 package circulation.combiner;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Decode {
 
-    static final File JAR_FILE = getJarFile();
-    static final File configFile = new File(JAR_FILE,"config.json");
-    static final File sourceFile = new File(JAR_FILE,"source");
-    static final File targetFile = new File(JAR_FILE,"target");
-
-    public static List<Pack> packs = new ArrayList<>();
+    static final Path JAR_FILE = getJarFile().toPath();
+    static final Path cleanroomFile = JAR_FILE.resolve("cleanroom");
+    static final Path forgeFile = JAR_FILE.resolve("forge");
+    static final Path sameFile = JAR_FILE.resolve("same");
+    static final Path temporaryFile = JAR_FILE.resolve("temporary");
+    static final Path buildFile = JAR_FILE.resolve("build");
 
     private static File getJarFile() {
         try {
@@ -36,31 +30,12 @@ public class Decode {
     }
 
     static {
-        if (configFile.exists()) {
-            try {
-                Files.createDirectories(targetFile.toPath());
-                Path configPath = configFile.toPath();
-                Gson packGson = (new GsonBuilder()).disableHtmlEscaping().setPrettyPrinting().create();
-                packs.addAll(
-                        packGson.fromJson(
-                                new String(Files.readAllBytes(configPath)),
-                                new TypeToken<List<Pack>>(){}
-                                        .getType()
-                        )
-                );
-            } catch (IOException e) {
-                throw new RuntimeException("配置文件读取失败: " + configFile, e);
-            }
-        } else {
-            throw new RuntimeException("配置文件不存在: " + configFile.getAbsolutePath());
+        try {
+            Files.createDirectories(temporaryFile);
+            Files.createDirectories(buildFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public record Pack(String name, boolean work) {
-
-        public Path getPath() {
-            return sourceFile.toPath().resolve(name);
-        }
-
-    }
 }
