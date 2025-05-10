@@ -1,7 +1,8 @@
 package circulation.combiner;
 
-import java.io.File;
-import java.io.IOException;
+import com.google.gson.*;
+
+import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Scanner;
@@ -24,10 +25,15 @@ public class Combiner {
             copyWithXCopyBehavior(Decode.sameFile);
             copyWithXCopyBehavior(Decode.forgeFile);
 
-            compressDirectoryToZip(Decode.temporaryFile,Decode.buildFile.resolve("NovaEngineering-World-" + input + ".zip"));
+            var forge = "NovaEngineering-World-" + input;
+            var cleanroom = "NovaEngineering-World-" + input + "-cleanroom";
+
+            VersionWriting(input,false);
+            compressDirectoryToZip(Decode.temporaryFile,Decode.buildFile.resolve(forge + ".zip"));
 
             copyWithXCopyBehavior(Decode.cleanroomFile);
-            compressDirectoryToZip(Decode.temporaryFile,Decode.buildFile.resolve("NovaEngineering-World-" + input + "-cleanroom.zip"));
+            VersionWriting(input,true);
+            compressDirectoryToZip(Decode.temporaryFile,Decode.buildFile.resolve(cleanroom + ".zip"));
 
             ClearHandler.cleanDirectory(Decode.temporaryFile);
 
@@ -105,6 +111,27 @@ public class Combiner {
                     return FileVisitResult.CONTINUE;
                 }
             });
+        }
+    }
+
+    public static void VersionWriting(String version,boolean isCrl){
+        var source = Decode.temporaryFile.resolve("manifest.json");
+        try (FileReader reader = new FileReader(source.toFile())) {
+            JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
+            var name = "NovaEngineering-World-" + version;
+            if (isCrl){
+                name += "-cleanroom";
+            }
+            root.addProperty("name",name);
+            root.addProperty("version",version);
+            try (FileWriter writer = new FileWriter(source.toFile())) {
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                gson.toJson(root, writer);
+            } catch (IOException ignored) {
+
+            }
+        } catch (IOException ignored) {
+
         }
     }
 
